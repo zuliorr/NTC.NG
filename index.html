@@ -1,1 +1,998 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEWBIE TRADE COMMUNITY — Member Portal & Exclusive Area</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN untuk Grafik Ekuitas Jurnal -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            300: '#fde047',
+                            400: '#facc15',
+                            500: '#eab308',
+                            600: '#ca8a04',
+                            700: '#a16207',
+                        },
+                        dark: {
+                            950: '#090d16',
+                            900: '#0f172a',
+                            800: '#1e293b',
+                            700: '#334155'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Google Fonts & FontAwesome Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #090d16; color: #f1f5f9; }
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #fef08a 0%, #eab308 50%, #854d0e 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between antialiased selection:bg-yellow-500 selection:text-slate-900">
 
+    <!-- Toast Notification -->
+    <div id="globalToast" class="fixed top-5 right-5 z-50 hidden transition-all duration-300 max-w-md w-full">
+        <div id="toastInner" class="p-4 rounded-xl text-xs font-medium flex items-center justify-between border shadow-2xl bg-slate-800 border-slate-700">
+            <div class="flex items-center space-x-3">
+                <i id="toastIcon" class="fa-solid fa-circle-info text-base"></i>
+                <span id="toastMessage">Pesan sistem...</span>
+            </div>
+            <button onclick="dismissToast()" class="text-slate-400 hover:text-white ml-4"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+    </div>
+
+    <!-- Header Navigation Bar -->
+    <header class="bg-slate-900/90 border-b border-slate-800 backdrop-blur sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 py-3.5 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 bg-gradient-to-tr from-yellow-600 to-yellow-400 text-slate-950 font-black rounded-lg flex items-center justify-center text-sm shadow-md shadow-yellow-500/20">
+                    NTC
+                </div>
+                <div>
+                    <span class="font-extrabold tracking-wide text-sm md:text-base gold-gradient-text block">NEWBIE TRADE COMMUNITY</span>
+                    <span class="text-[10px] text-slate-400 font-mono tracking-widest block uppercase">Portal Eksklusif Member</span>
+                </div>
+            </div>
+
+            <!-- Dynamic User Header / Auth Switch -->
+            <div id="headerAuthNav" class="flex items-center space-x-2">
+                <!-- Disuntikkan via JavaScript -->
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container Area -->
+    <main class="max-w-7xl mx-auto px-4 py-8 flex-grow w-full flex items-center justify-center">
+
+        <!-- FORM 1: LOGIN MEMBER -->
+        <section id="secLogin" class="w-full max-w-md space-y-6">
+            <div class="text-center space-y-2">
+                <h1 class="text-2xl font-bold text-white">Masuk Area Member</h1>
+                <p class="text-xs text-slate-400">Silakan login menggunakan ID Member atau Email Anda yang terdaftar.</p>
+            </div>
+
+            <div class="glass-card p-6 md:p-8 rounded-2xl shadow-2xl space-y-5">
+                <form onsubmit="handleLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">ID Member / Email:</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-user absolute left-3.5 top-3.5 text-slate-500 text-xs"></i>
+                            <input type="text" id="loginIdentifier" placeholder="Contoh: 2324110401 atau email@ntc.org" required
+                                class="w-full pl-9 pr-3 py-2.5 bg-slate-900/90 border border-slate-700 rounded-lg text-xs text-white focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 focus:outline-none transition">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Kata Sandi (Password):</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-lock absolute left-3.5 top-3.5 text-slate-500 text-xs"></i>
+                            <input type="password" id="loginPassword" placeholder="••••••••" required
+                                class="w-full pl-9 pr-3 py-2.5 bg-slate-900/90 border border-slate-700 rounded-lg text-xs text-white focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 focus:outline-none transition">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full py-3 bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-400 hover:to-amber-500 text-slate-950 font-bold rounded-lg text-xs shadow-lg shadow-yellow-500/10 transition transform active:scale-95">
+                        <i class="fa-solid fa-right-to-bracket mr-1.5"></i> Masuk Sekarang
+                    </button>
+                </form>
+
+                <div class="text-center pt-2 border-t border-slate-800">
+                    <p class="text-xs text-slate-400">Belum memiliki ID Member NTC?</p>
+                    <button onclick="showView('secRegister')" class="mt-2 text-xs font-bold text-yellow-400 hover:text-yellow-300 underline">
+                        Daftar Akun Member Baru &rarr;
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- FORM 2: REGISTRASI MEMBER BARU -->
+        <section id="secRegister" class="w-full max-w-md space-y-6 hidden">
+            <div class="text-center space-y-2">
+                <h1 class="text-2xl font-bold text-white">Pendaftaran Member Baru</h1>
+                <p class="text-xs text-slate-400">Isi data formulir untuk pendaftaran keanggotaan NTC.</p>
+            </div>
+
+            <div class="glass-card p-6 md:p-8 rounded-2xl shadow-2xl space-y-5">
+                <form onsubmit="handleRegister(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Nama Lengkap:</label>
+                        <input type="text" id="regName" placeholder="Contoh: Ahmad Rizky" required
+                            class="w-full px-3 py-2.5 bg-slate-900/90 border border-slate-700 rounded-lg text-xs text-white focus:border-yellow-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Alamat Email:</label>
+                        <input type="email" id="regEmail" placeholder="nama@email.com" required
+                            class="w-full px-3 py-2.5 bg-slate-900/90 border border-slate-700 rounded-lg text-xs text-white focus:border-yellow-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">
+                            ID Member Diharapkan <span class="text-slate-500 font-normal">(10 Angka / Otomatis)</span>:
+                        </label>
+                        <div class="flex gap-2">
+                            <input type="text" id="regMemberId" placeholder="Misal: 2324110405" maxlength="10"
+                                class="w-full px-3 py-2.5 bg-slate-900/90 border border-slate-700 rounded-lg text-xs text-white font-mono focus:border-yellow-500 focus:outline-none">
+                            <button type="button" onclick="generateRandomID()" class="px-3 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs rounded-lg font-bold whitespace-nowrap">
+                                Auto ID
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">Kata Sandi:</label>
+                            <input type="password" id="regPass" placeholder="••••••••" required
+                                class="w-full px-3 py-2.5 bg-slate-900/90 border border-slate-700 rounded-lg text-xs text-white focus:border-yellow-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">Konfirmasi Sandi:</label>
+                            <input type="password" id="regPassConf" placeholder="••••••••" required
+                                class="w-full px-3 py-2.5 bg-slate-900/90 border border-slate-700 rounded-lg text-xs text-white focus:border-yellow-500 focus:outline-none">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full py-3 bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-bold rounded-lg text-xs shadow-lg shadow-yellow-500/10 transition">
+                        <i class="fa-solid fa-user-plus mr-1.5"></i> Daftar & Masuk Dashboard
+                    </button>
+                </form>
+
+                <div class="text-center pt-2 border-t border-slate-800">
+                    <button onclick="showView('secLogin')" class="text-xs text-slate-400 hover:text-white">
+                        &larr; Kembali ke Halaman Login
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 3: DASHBOARD KHUSUS MEMBER -->
+        <section id="secMemberDashboard" class="w-full space-y-6 hidden">
+            <!-- Top Banner Member Status -->
+            <div class="bg-gradient-to-r from-slate-800 via-slate-800/90 to-slate-900 p-6 rounded-2xl border border-yellow-500/30 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-xl">
+                <div class="flex items-center space-x-4">
+                    <div class="w-14 h-14 bg-gradient-to-tr from-yellow-500 to-amber-300 rounded-xl flex items-center justify-center text-slate-950 text-2xl font-black shadow-lg shadow-yellow-500/20">
+                        <i class="fa-solid fa-user-check"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <h1 class="text-xl font-bold text-white" id="dashMemberName">Member NTC</h1>
+                            <span class="px-2.5 py-0.5 bg-green-500/10 border border-green-500/30 text-green-400 font-bold text-[10px] rounded-full uppercase">
+                                VERIFIED MEMBER
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-400 font-mono mt-0.5">
+                            ID Member: <strong class="text-yellow-400" id="dashMemberId">2324110401</strong> | Email: <span id="dashMemberEmail">user@ntc.org</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3 w-full md:w-auto">
+                    <a href="https://chat.whatsapp.com/IKtP5neIAREKuUj11L7wLX" target="_blank" class="flex-1 md:flex-none text-center px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20">
+                        <i class="fa-brands fa-whatsapp text-sm"></i> Grup WhatsApp
+                    </a>
+                    <button onclick="logoutMember()" class="px-4 py-2.5 bg-red-900/40 hover:bg-red-800 text-red-200 border border-red-700/50 rounded-lg text-xs font-semibold transition">
+                        Logout
+                    </button>
+                </div>
+            </div>
+
+            <!-- BANNER GABUNG BROKER MITRA NTC -->
+            <div class="p-5 rounded-2xl bg-gradient-to-r from-amber-950/40 via-yellow-900/20 to-slate-900 border border-yellow-500/40 flex flex-col md:flex-row items-center justify-between gap-4 shadow-xl">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-yellow-500/20 border border-yellow-500/40 rounded-xl flex items-center justify-center text-yellow-400 text-xl font-bold">
+                        <i class="fa-solid fa-handshake"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm md:text-base font-bold text-yellow-400 flex items-center gap-2">
+                            Broker Mitra Resmi NTC New Generation
+                        </h3>
+                        <p class="text-xs text-slate-300 mt-0.5">
+                            Dapatkan Spread Rendah, Eksekusi Cepat, dan Akses Fitur Komunitas NTC dengan mendaftar di broker mitra.
+                        </p>
+                    </div>
+                </div>
+                <a href="https://ma-valetax-indonesia.com/p/3738247" target="_blank" class="w-full md:w-auto text-center px-5 py-2.5 bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-400 hover:to-amber-500 text-slate-950 font-bold rounded-lg text-xs transition shadow-lg shadow-yellow-500/20 whitespace-nowrap flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i> Daftar Broker Mitra
+                </a>
+            </div>
+
+            <!-- Content Grid Member Exclusive -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Main Operational Section -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Sesi & Jam Kerja Trading (WITA) dengan Live Time Indicator -->
+                    <div class="glass-card p-6 rounded-2xl space-y-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+                            <h2 class="font-bold text-base text-yellow-500 flex items-center gap-2">
+                                <i class="fa-solid fa-clock"></i> Sesi Pasar & Jam Kerja Trading (WITA)
+                            </h2>
+                            <!-- Live Time Zone Display -->
+                            <div class="flex items-center space-x-2 bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800 font-mono text-xs">
+                                <span class="relative flex h-2 w-2">
+                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                    <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                </span>
+                                <span class="text-slate-400 text-[10px]">WITA:</span>
+                                <strong id="liveWitaClock" class="text-yellow-400 font-bold">00:00:00 WITA</strong>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                            <!-- Card Sesi Asia -->
+                            <div id="cardSessionAsia" class="p-3.5 bg-slate-900/90 rounded-xl border border-slate-800 transition-all duration-300 relative overflow-hidden">
+                                <div class="flex justify-between items-start mb-1">
+                                    <span class="text-slate-400 text-[10px] font-mono uppercase">Sesi Asia</span>
+                                    <span id="badgeAsia" class="text-[9px] px-2 py-0.5 rounded font-bold uppercase hidden">BERLANGSUNG</span>
+                                </div>
+                                <p class="font-bold text-white text-sm">07:00 – 15:00 WITA</p>
+                                <p class="text-[10px] text-slate-400 mt-0.5">Sidney & Tokyo</p>
+                            </div>
+
+                            <!-- Card Sesi London -->
+                            <div id="cardSessionLondon" class="p-3.5 bg-slate-900/90 rounded-xl border border-slate-800 transition-all duration-300 relative overflow-hidden">
+                                <div class="flex justify-between items-start mb-1">
+                                    <span class="text-slate-400 text-[10px] font-mono uppercase">Sesi London</span>
+                                    <span id="badgeLondon" class="text-[9px] px-2 py-0.5 rounded font-bold uppercase hidden">BERLANGSUNG</span>
+                                </div>
+                                <p class="font-bold text-white text-sm">15:00 – 23:00 WITA</p>
+                                <p class="text-[10px] text-slate-400 mt-0.5">Eropa & Inggris</p>
+                            </div>
+
+                            <!-- Card Sesi New York -->
+                            <div id="cardSessionNY" class="p-3.5 bg-slate-900/90 rounded-xl border border-slate-800 transition-all duration-300 relative overflow-hidden">
+                                <div class="flex justify-between items-start mb-1">
+                                    <span class="text-slate-400 text-[10px] font-mono uppercase">Sesi New York</span>
+                                    <span id="badgeNY" class="text-[9px] px-2 py-0.5 rounded font-bold uppercase hidden">BERLANGSUNG</span>
+                                </div>
+                                <p class="font-bold text-white text-sm">20:00 – 04:00 WITA</p>
+                                <p class="text-[10px] text-slate-400 mt-0.5">Amerika Serikat</p>
+                            </div>
+                        </div>
+
+                        <!-- Highlight Best Entry Time -->
+                        <div id="boxBestEntry" class="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-xs text-amber-300 flex items-center gap-2 transition-all">
+                            <i id="iconBestEntry" class="fa-solid fa-bullseye text-base"></i>
+                            <div>
+                                <strong class="block">Best Entry Time NTC:</strong>
+                                <span>Overlap London & New York (19:30 – 23:00 WITA) — Volatilitas dan likuiditas terbaik.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SOP Trading Rules Member -->
+                    <div class="glass-card p-6 rounded-2xl space-y-4">
+                        <h2 class="font-bold text-base text-yellow-500 flex items-center gap-2">
+                            <i class="fa-solid fa-shield-halved"></i> SOP Manajemen Risiko NTC New Generation
+                        </h2>
+                        <ul class="text-xs text-slate-300 space-y-3 list-disc pl-4 leading-relaxed">
+                            <li><strong class="text-white">Batas Risiko Maksimal:</strong> Maksimal 1% – 2% dari total ekuitas per satu posisi transaksi.</li>
+                            <li><strong class="text-white">Wajib Stop Loss (SL):</strong> Dilarang membuka posisi tanpa memasang Stop Loss presisi.</li>
+                            <li><strong class="text-white">Aturan High Impact News:</strong> Kurangi ukuran lot sebesar 50% atau bersihkan semua posisi mengambang minimal 15 menit sebelum rilis berita penting (CPI/NFP/FOMC).</li>
+                            <li><strong class="text-white">Diskusi & Komunitas:</strong> Manfaatkan <strong class="text-emerald-400">Grup Diskusi WhatsApp</strong> resmi untuk saling bertukar analisis harian secara kondusif.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Jurnal Trading Harian + Grafik Ekuitas -->
+                    <div class="glass-card p-6 rounded-2xl space-y-5">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+                            <h2 class="font-bold text-base text-yellow-500 flex items-center gap-2">
+                                <i class="fa-solid fa-book-journal-whills"></i> Jurnal Trading & Kurva Ekuitas Modal
+                            </h2>
+                            <div class="flex items-center gap-2 text-xs font-mono">
+                                <span class="bg-slate-800 px-2.5 py-1 rounded-lg text-slate-300">Win Rate: <strong id="statWinRate" class="text-green-400">0%</strong></span>
+                                <span class="bg-slate-800 px-2.5 py-1 rounded-lg text-slate-300">Total PnL: <strong id="statTotalPnL" class="text-white">$0</strong></span>
+                            </div>
+                        </div>
+
+                        <!-- Modal Awal Config & Grafik Ekuitas Chart.js -->
+                        <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800 space-y-3">
+                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                                <label class="text-xs font-semibold text-slate-300 flex items-center gap-2">
+                                    <i class="fa-solid fa-wallet text-yellow-500"></i> Modal Awal Akun (Starting Capital USD):
+                                </label>
+                                <div class="flex items-center gap-2 w-full sm:w-auto">
+                                    <span class="text-xs text-slate-400 font-mono">$</span>
+                                    <input type="number" id="initCapitalInput" value="100" min="1" onchange="updateInitialCapital(this.value)"
+                                        class="w-28 p-1.5 bg-slate-950 border border-slate-700 rounded-lg text-xs font-mono text-yellow-400 text-right focus:border-yellow-500 focus:outline-none">
+                                </div>
+                            </div>
+
+                            <!-- Canvas Grafik -->
+                            <div class="w-full h-48 md:h-56 relative pt-2">
+                                <canvas id="equityChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Form Add Journal Record -->
+                        <form onsubmit="handleAddJournal(event)" class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs">
+                            <div>
+                                <label class="block text-[10px] text-slate-400 mb-1">Tanggal</label>
+                                <input type="date" id="jnlDate" required class="w-full p-2 bg-slate-900 border border-slate-700 rounded-lg text-white">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-slate-400 mb-1">Pair / Aset</label>
+                                <input type="text" id="jnlPair" placeholder="XAUUSD" required class="w-full p-2 bg-slate-900 border border-slate-700 rounded-lg text-white uppercase">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-slate-400 mb-1">Tipe</label>
+                                <select id="jnlType" class="w-full p-2 bg-slate-900 border border-slate-700 rounded-lg text-white">
+                                    <option value="BUY">BUY</option>
+                                    <option value="SELL">SELL</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-slate-400 mb-1">Lot</label>
+                                <input type="number" id="jnlLot" step="0.01" value="0.1" required class="w-full p-2 bg-slate-900 border border-slate-700 rounded-lg text-white">
+                            </div>
+                            <div class="col-span-2 sm:col-span-1">
+                                <label class="block text-[10px] text-slate-400 mb-1">Profit/Loss ($)</label>
+                                <input type="number" id="jnlPnL" step="0.01" placeholder="+15 atau -10" required class="w-full p-2 bg-slate-900 border border-slate-700 rounded-lg text-white">
+                            </div>
+                            <div class="col-span-2 sm:col-span-4">
+                                <input type="text" id="jnlNote" placeholder="Catatan analisis / setup entry..." class="w-full p-2 bg-slate-900 border border-slate-700 rounded-lg text-white">
+                            </div>
+                            <div class="col-span-2 sm:col-span-1">
+                                <button type="submit" class="w-full h-full py-2 bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-bold rounded-lg transition">
+                                    + Catat
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- Journal Table List -->
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-xs text-left border-collapse">
+                                <thead>
+                                    <tr class="border-b border-slate-800 text-slate-400 text-[10px] uppercase font-mono">
+                                        <th class="py-2 px-1">Tgl</th>
+                                        <th class="py-2 px-1">Pair</th>
+                                        <th class="py-2 px-1">Tipe</th>
+                                        <th class="py-2 px-1">Lot</th>
+                                        <th class="py-2 px-1">PnL ($)</th>
+                                        <th class="py-2 px-1">Catatan</th>
+                                        <th class="py-2 px-1 text-right">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="journalTableBody" class="divide-y divide-slate-800/60 font-mono">
+                                    <!-- Dynamic Render Via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar Kolom Kanan -->
+                <div class="space-y-6">
+                    <!-- CARD KEMITRAAN BROKER -->
+                    <div class="glass-card p-6 rounded-2xl space-y-4 border-l-4 border-l-yellow-500">
+                        <h2 class="font-bold text-base text-yellow-500 flex items-center gap-2">
+                            <i class="fa-solid fa-building-columns"></i> Registrasi Broker Mitra
+                        </h2>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            Pastikan Anda mendaftar melalui tautan resmi kemitraan NTC untuk mendapatkan fasilitas akun cent, leverage optimal, dan grup VIP Signal.
+                        </p>
+
+                        <div class="p-3 bg-slate-900/90 rounded-xl border border-slate-800 space-y-2 text-xs">
+                            <div class="flex items-center gap-2 text-slate-300">
+                                <i class="fa-solid fa-check text-green-400"></i> Akun Cent & Standard
+                            </div>
+                            <div class="flex items-center gap-2 text-slate-300">
+                                <i class="fa-solid fa-check text-green-400"></i> Deposit & Withdrawal Lokal
+                            </div>
+                            <div class="flex items-center gap-2 text-slate-300">
+                                <i class="fa-solid fa-check text-green-400"></i> Terintegrasi Komunitas NTC
+                            </div>
+                        </div>
+
+                        <a href="https://ma-valetax-indonesia.com/p/3738247" target="_blank" class="w-full py-2.5 bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-bold rounded-lg text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-yellow-500/10">
+                            <i class="fa-solid fa-external-link"></i> Buka Akun Trading Sekarang
+                        </a>
+                    </div>
+
+                    <!-- Kalkulator Risiko & Ketahanan Trading -->
+                    <div class="glass-card p-6 rounded-2xl space-y-4 sticky top-20">
+                        <h2 class="font-bold text-base text-yellow-500 flex items-center gap-2">
+                            <i class="fa-solid fa-calculator"></i> Kalkulator Ketahanan Risiko (Cent Account)
+                        </h2>
+
+                        <div class="space-y-3 text-xs">
+                            <div>
+                                <label class="block text-slate-400 mb-1">Saldo Akun (USD):</label>
+                                <input type="number" id="lotBalance" value="100" oninput="calcMemberLot()"
+                                    class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-lg text-white font-mono focus:border-yellow-500 focus:outline-none">
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block text-slate-400 mb-1">Toleransi Risiko (%):</label>
+                                    <input type="number" id="lotRisk" value="2" oninput="calcMemberLot()"
+                                        class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-lg text-white font-mono focus:border-yellow-500 focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-slate-400 mb-1">Jarak Stop Loss (Pips):</label>
+                                    <input type="number" id="lotSL" value="30" oninput="calcMemberLot()"
+                                        class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-lg text-white font-mono focus:border-yellow-500 focus:outline-none">
+                                </div>
+                            </div>
+
+                            <!-- Output Kalkulasi Detail -->
+                            <div class="p-4 bg-slate-900/90 rounded-xl border border-yellow-500/20 space-y-2.5">
+                                <div class="flex justify-between items-center text-[11px] border-b border-slate-800 pb-1.5">
+                                    <span class="text-slate-400">Total Saldo Cent:</span>
+                                    <strong id="resCentBalance" class="text-white font-mono">10.000 USC</strong>
+                                </div>
+                                <div class="flex justify-between items-center text-[11px] border-b border-slate-800 pb-1.5">
+                                    <span class="text-slate-400">Beban Risiko/Trade:</span>
+                                    <strong id="resRiskUSD" class="text-red-400 font-mono">$2.00 (200 USC)</strong>
+                                </div>
+                                <div class="flex justify-between items-center text-[11px] border-b border-slate-800 pb-1.5">
+                                    <span class="text-slate-400">Jarak Stop Loss:</span>
+                                    <strong id="resPips" class="text-yellow-400 font-mono">30 Pips</strong>
+                                </div>
+                                <div class="flex justify-between items-center text-[11px] border-b border-slate-800 pb-1.5">
+                                    <span class="text-slate-400">Rekomendasi Size Lot:</span>
+                                    <strong id="resLotSize" class="text-emerald-400 font-mono">0.67 Lot Cent</strong>
+                                </div>
+
+                                <!-- Fitur Berapa Kali Trading Ketahanan Risiko -->
+                                <div class="pt-1.5">
+                                    <div class="flex justify-between items-center text-xs">
+                                        <span class="text-slate-300 font-semibold">Ketahanan Loss Berturut-turut:</span>
+                                        <span id="resTradeFrequency" class="text-yellow-400 font-black font-mono text-sm">50 Kali</span>
+                                    </div>
+                                    <p class="text-[10px] text-slate-500 mt-1 leading-tight">
+                                        *Modal Anda sanggup menerima <strong id="resTradeFrequencyText" class="text-slate-300">50 kali Stop Loss berturut-turut</strong> sebelum saldo mengalami Margin Call (MC).
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 border-t border-slate-800 py-4 text-center text-xs text-slate-500">
+        <p>&copy; 2026 NEWBIE TRADE COMMUNITY (NTC). All Rights Reserved.</p>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        const DB_USERS_KEY = 'ntc_shared_users_db';
+        const SESSION_USER_KEY = 'ntc_logged_user';
+        let equityChartInstance = null;
+
+        const DEFAULT_USERS_DATA = [
+            {
+                member_id: "2324110401",
+                name: "Ahmad Rizky",
+                email: "ahmad.rizky@gmail.com",
+                password: "password123",
+                status: "APPROVED",
+                role: "MEMBER",
+                reg_time: "2026-09-01 10:15",
+                initial_capital: 100,
+                journals: []
+            }
+        ];
+
+        function getUsersDB() {
+            const rawData = localStorage.getItem(DB_USERS_KEY);
+            if (!rawData) {
+                localStorage.setItem(DB_USERS_KEY, JSON.stringify(DEFAULT_USERS_DATA));
+                return DEFAULT_USERS_DATA;
+            }
+            try { return JSON.parse(rawData); } catch (e) { return DEFAULT_USERS_DATA; }
+        }
+
+        function saveUsersDB(usersArray) {
+            localStorage.setItem(DB_USERS_KEY, JSON.stringify(usersArray));
+        }
+
+        function getActiveSession() {
+            const sessionData = localStorage.getItem(SESSION_USER_KEY);
+            return sessionData ? JSON.parse(sessionData) : null;
+        }
+
+        function setActiveSession(userObject) {
+            localStorage.setItem(SESSION_USER_KEY, JSON.stringify(userObject));
+        }
+
+        function clearActiveSession() {
+            localStorage.removeItem(SESSION_USER_KEY);
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const identifier = document.getElementById('loginIdentifier').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+
+            const users = getUsersDB();
+            const matchedUser = users.find(u => 
+                (u.member_id === identifier || u.email.toLowerCase() === identifier.toLowerCase()) && 
+                u.password === password
+            );
+
+            if (!matchedUser) {
+                showToast("ID Member/Email atau Kata Sandi salah!", "error");
+                return;
+            }
+
+            setActiveSession(matchedUser);
+            showToast(`Selamat datang kembali, ${matchedUser.name}!`, "success");
+            checkSessionAndRender();
+        }
+
+        function handleRegister(event) {
+            event.preventDefault();
+            const name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const memberIdInput = document.getElementById('regMemberId').value.trim();
+            const pass = document.getElementById('regPass').value.trim();
+            const passConf = document.getElementById('regPassConf').value.trim();
+
+            if (pass !== passConf) {
+                showToast("Konfirmasi kata sandi tidak cocok!", "error");
+                return;
+            }
+
+            const users = getUsersDB();
+            if (users.some(u => u.email.toLowerCase() === email.toLowerCase())) {
+                showToast("Email sudah terdaftar. Gunakan email lain!", "error");
+                return;
+            }
+
+            let finalMemberId = memberIdInput;
+            if (!finalMemberId || finalMemberId.length !== 10) {
+                finalMemberId = generateUniqueMemberID(users);
+            } else if (users.some(u => u.member_id === finalMemberId)) {
+                showToast("ID Member tersebut sudah digunakan!", "error");
+                return;
+            }
+
+            const now = new Date();
+            const timeFormatted = now.toISOString().slice(0, 10) + " " + now.toTimeString().slice(0, 5);
+
+            const newUser = {
+                member_id: finalMemberId,
+                name: name,
+                email: email,
+                password: pass,
+                status: "APPROVED",
+                role: "MEMBER",
+                reg_time: timeFormatted,
+                initial_capital: 100,
+                journals: []
+            };
+
+            users.push(newUser);
+            saveUsersDB(users);
+            setActiveSession(newUser);
+            
+            showToast("Pendaftaran berhasil! Akun Anda telah aktif.", "success");
+            checkSessionAndRender();
+        }
+
+        function generateRandomID() {
+            const randomSuffix = Math.floor(100000 + Math.random() * 900000);
+            document.getElementById('regMemberId').value = `2324${randomSuffix}`;
+        }
+
+        function generateUniqueMemberID(existingUsers) {
+            let newId = "";
+            do {
+                const randomSuffix = Math.floor(100000 + Math.random() * 900000);
+                newId = `2324${randomSuffix}`;
+            } while (existingUsers.some(u => u.member_id === newId));
+            return newId;
+        }
+
+        function logoutMember() {
+            clearActiveSession();
+            showToast("Anda telah keluar dari akun.", "info");
+            showView('secLogin');
+            renderHeaderNav(null);
+        }
+
+        function checkSessionAndRender() {
+            const currentSession = getActiveSession();
+            if (!currentSession) {
+                showView('secLogin');
+                renderHeaderNav(null);
+                return;
+            }
+
+            const users = getUsersDB();
+            const freshUserData = users.find(u => u.member_id === currentSession.member_id) || currentSession;
+            renderHeaderNav(freshUserData);
+
+            showView('secMemberDashboard');
+            document.getElementById('dashMemberName').innerText = freshUserData.name;
+            document.getElementById('dashMemberId').innerText = freshUserData.member_id;
+            document.getElementById('dashMemberEmail').innerText = freshUserData.email;
+            
+            const initCap = freshUserData.initial_capital || 100;
+            document.getElementById('initCapitalInput').value = initCap;
+
+            calcMemberLot();
+            renderJournalTable(freshUserData);
+            updateTradingSessions();
+        }
+
+        function showView(viewId) {
+            ['secLogin', 'secRegister', 'secMemberDashboard'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    if (id === viewId) el.classList.remove('hidden');
+                    else el.classList.add('hidden');
+                }
+            });
+        }
+
+        function renderHeaderNav(user) {
+            const navContainer = document.getElementById('headerAuthNav');
+            if (!navContainer) return;
+            if (user) {
+                navContainer.innerHTML = `
+                    <div class="flex items-center space-x-3 text-xs">
+                        <div class="text-right hidden sm:block">
+                            <p class="font-bold text-white">${user.name}</p>
+                            <p class="text-[10px] text-slate-400 font-mono">${user.member_id}</p>
+                        </div>
+                        <button onclick="logoutMember()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold border border-slate-700 transition">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                        </button>
+                    </div>
+                `;
+            } else {
+                navContainer.innerHTML = `
+                    <button onclick="showView('secLogin')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-lg transition">Masuk</button>
+                    <button onclick="showView('secRegister')" class="px-3 py-1.5 bg-yellow-500 hover:bg-yellow-400 text-slate-950 text-xs font-bold rounded-lg transition">Daftar</button>
+                `;
+            }
+        }
+
+        // FEATURE: LIVE TIMEZONE (WITA) & TRADING SESSION HIGHLIGHT
+        function updateTradingSessions() {
+            const now = new Date();
+            // Konversi ke Waktu WITA (UTC+8)
+            const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+            const witaTime = new Date(utc + (3600000 * 8));
+
+            const hours = witaTime.getHours();
+            const minutes = witaTime.getMinutes();
+            const seconds = witaTime.getSeconds();
+
+            const timeStr = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')} WITA`;
+            const clockEl = document.getElementById('liveWitaClock');
+            if (clockEl) clockEl.innerText = timeStr;
+
+            const totalMinutes = hours * 60 + minutes;
+
+            // Definition Jam Sesi (dalam Menit)
+            const isAsia = totalMinutes >= (7 * 60) && totalMinutes < (15 * 60);
+            const isLondon = totalMinutes >= (15 * 60) && totalMinutes < (23 * 60);
+            const isNY = totalMinutes >= (20 * 60) || totalMinutes < (4 * 60);
+
+            // Overlap London & NY (Best Entry Time): 19:30 - 23:00 WITA
+            const isOverlap = totalMinutes >= (19 * 60 + 30) && totalMinutes < (23 * 60);
+
+            // Apply Style to Cards
+            applySessionStyle('cardSessionAsia', 'badgeAsia', isAsia);
+            applySessionStyle('cardSessionLondon', 'badgeLondon', isLondon);
+            applySessionStyle('cardSessionNY', 'badgeNY', isNY);
+
+            // Apply Style to Best Entry Overlap Banner
+            const boxBest = document.getElementById('boxBestEntry');
+            const iconBest = document.getElementById('iconBestEntry');
+            if (boxBest && iconBest) {
+                if (isOverlap) {
+                    boxBest.className = "p-3 bg-emerald-500/20 border border-emerald-500/50 rounded-xl text-xs text-emerald-300 flex items-center gap-2 shadow-lg shadow-emerald-500/10 animate-pulse";
+                    iconBest.className = "fa-solid fa-fire text-base text-emerald-400";
+                } else {
+                    boxBest.className = "p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-xs text-amber-300 flex items-center gap-2 transition-all";
+                    iconBest.className = "fa-solid fa-bullseye text-base";
+                }
+            }
+        }
+
+        function applySessionStyle(cardId, badgeId, isActive) {
+            const card = document.getElementById(cardId);
+            const badge = document.getElementById(badgeId);
+            if (!card || !badge) return;
+
+            if (isActive) {
+                card.className = "p-3.5 bg-gradient-to-b from-slate-800 to-slate-900 rounded-xl border-2 border-yellow-500 shadow-lg shadow-yellow-500/10 relative overflow-hidden transform scale-[1.02]";
+                badge.className = "text-[9px] px-2 py-0.5 bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 font-bold rounded uppercase tracking-wider animate-pulse inline-block";
+                badge.innerText = "BERLANGSUNG";
+            } else {
+                card.className = "p-3.5 bg-slate-900/60 rounded-xl border border-slate-800/80 opacity-60 hover:opacity-100 transition-all duration-300 relative overflow-hidden";
+                badge.className = "hidden";
+            }
+        }
+
+        // KALKULATOR RISIKO & FREKUENSI TRADING
+        function calcMemberLot() {
+            const balanceUSD = parseFloat(document.getElementById('lotBalance').value) || 0;
+            const riskPct = parseFloat(document.getElementById('lotRisk').value) || 0;
+            const pipsSL = parseFloat(document.getElementById('lotSL').value) || 1;
+
+            const centBalance = balanceUSD * 100;
+            const riskUSD = (balanceUSD * riskPct) / 100;
+            const riskCent = riskUSD * 100;
+
+            const lotCent = (riskUSD / (pipsSL * 0.1)).toFixed(2);
+            const tradeFrequency = riskUSD > 0 ? Math.floor(balanceUSD / riskUSD) : 0;
+
+            document.getElementById('resCentBalance').innerText = centBalance.toLocaleString() + ' USC';
+            document.getElementById('resRiskUSD').innerText = `$${riskUSD.toFixed(2)} (${riskCent.toLocaleString()} USC)`;
+            document.getElementById('resPips').innerText = `${pipsSL} Pips`;
+            document.getElementById('resLotSize').innerText = `${lotCent} Lot Cent`;
+            document.getElementById('resTradeFrequency').innerText = `${tradeFrequency} Kali`;
+            document.getElementById('resTradeFrequencyText').innerText = `${tradeFrequency} kali Stop Loss berturut-turut`;
+        }
+
+        function updateInitialCapital(val) {
+            const newCapital = parseFloat(val) || 100;
+            const session = getActiveSession();
+            if (!session) return;
+
+            const users = getUsersDB();
+            const userIndex = users.findIndex(u => u.member_id === session.member_id);
+            if (userIndex !== -1) {
+                users[userIndex].initial_capital = newCapital;
+                saveUsersDB(users);
+                setActiveSession(users[userIndex]);
+                renderJournalTable(users[userIndex]);
+                showToast("Modal awal berhasil diperbarui!", "success");
+            }
+        }
+
+        function handleAddJournal(e) {
+            e.preventDefault();
+            const session = getActiveSession();
+            if (!session) return;
+
+            const date = document.getElementById('jnlDate').value;
+            const pair = document.getElementById('jnlPair').value.trim().toUpperCase();
+            const type = document.getElementById('jnlType').value;
+            const lot = parseFloat(document.getElementById('jnlLot').value) || 0;
+            const pnl = parseFloat(document.getElementById('jnlPnL').value) || 0;
+            const note = document.getElementById('jnlNote').value.trim();
+
+            const users = getUsersDB();
+            const userIndex = users.findIndex(u => u.member_id === session.member_id);
+
+            if (userIndex !== -1) {
+                if (!users[userIndex].journals) users[userIndex].journals = [];
+                users[userIndex].journals.push({
+                    id: Date.now(),
+                    date, pair, type, lot, pnl, note
+                });
+
+                saveUsersDB(users);
+                setActiveSession(users[userIndex]);
+                renderJournalTable(users[userIndex]);
+                showToast("Transaksi berhasil dicatat ke jurnal!", "success");
+                e.target.reset();
+
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('jnlDate').value = today;
+            }
+        }
+
+        function deleteJournal(journalId) {
+            const session = getActiveSession();
+            if (!session) return;
+
+            const users = getUsersDB();
+            const userIndex = users.findIndex(u => u.member_id === session.member_id);
+
+            if (userIndex !== -1 && users[userIndex].journals) {
+                users[userIndex].journals = users[userIndex].journals.filter(j => j.id !== journalId);
+                saveUsersDB(users);
+                setActiveSession(users[userIndex]);
+                renderJournalTable(users[userIndex]);
+                showToast("Catatan jurnal berhasil dihapus.", "info");
+            }
+        }
+
+        function renderJournalTable(user) {
+            const tbody = document.getElementById('journalTableBody');
+            if (!tbody) return;
+
+            const journals = user.journals || [];
+            tbody.innerHTML = '';
+
+            let totalPnL = 0;
+            let wins = 0;
+
+            const sortedJournals = [...journals].sort((a,b) => new Date(a.date) - new Date(b.date));
+            const displayJournals = [...journals].reverse();
+
+            if (displayJournals.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="py-4 text-center text-slate-500 font-sans">Belum ada catatan jurnal. Mulaikan pencatatan di atas.</td></tr>`;
+            } else {
+                displayJournals.forEach(j => {
+                    totalPnL += j.pnl;
+                    if (j.pnl > 0) wins++;
+
+                    const row = document.createElement('tr');
+                    row.className = "hover:bg-slate-800/40";
+                    row.innerHTML = `
+                        <td class="py-2 px-1 text-slate-400">${j.date}</td>
+                        <td class="py-2 px-1 font-bold text-white">${j.pair}</td>
+                        <td class="py-2 px-1 ${j.type === 'BUY' ? 'text-green-400' : 'text-red-400'}">${j.type}</td>
+                        <td class="py-2 px-1 text-slate-300">${j.lot}</td>
+                        <td class="py-2 px-1 font-bold ${j.pnl >= 0 ? 'text-green-400' : 'text-red-400'}">${j.pnl >= 0 ? '+' : ''}$${j.pnl}</td>
+                        <td class="py-2 px-1 text-slate-400 font-sans max-w-[120px] truncate">${j.note || '-'}</td>
+                        <td class="py-2 px-1 text-right">
+                            <button onclick="deleteJournal(${j.id})" class="text-slate-500 hover:text-red-400"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            const winRate = journals.length > 0 ? Math.round((wins / journals.length) * 100) : 0;
+            document.getElementById('statWinRate').innerText = `${winRate}%`;
+            document.getElementById('statTotalPnL').innerText = `${totalPnL >= 0 ? '+' : ''}$${totalPnL.toFixed(2)}`;
+            document.getElementById('statTotalPnL').className = totalPnL >= 0 ? 'text-green-400 font-bold' : 'text-red-400 font-bold';
+
+            renderEquityChart(user.initial_capital || 100, sortedJournals);
+        }
+
+        function renderEquityChart(initialCapital, sortedJournals) {
+            const ctx = document.getElementById('equityChart');
+            if (!ctx) return;
+
+            let labels = ['Modal Awal'];
+            let dataPoints = [initialCapital];
+            let currentEquity = initialCapital;
+
+            sortedJournals.forEach((j, index) => {
+                currentEquity += j.pnl;
+                labels.push(`#${index + 1} (${j.date})`);
+                dataPoints.push(currentEquity);
+            });
+
+            if (equityChartInstance) {
+                equityChartInstance.destroy();
+            }
+
+            equityChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Ekuitas Saldo ($)',
+                        data: dataPoints,
+                        borderColor: '#eab308',
+                        backgroundColor: 'rgba(234, 179, 8, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: labels.length > 15 ? 2 : 4,
+                        pointBackgroundColor: '#facc15'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Ekuitas: $${context.parsed.y.toFixed(2)}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#94a3b8', font: { size: 9 } }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { 
+                                color: '#94a3b8', 
+                                font: { size: 10 },
+                                callback: function(value) { return '$' + value; }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('globalToast');
+            const toastInner = document.getElementById('toastInner');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+
+            if (!toast || !toastMessage) return;
+            toastMessage.innerText = message;
+
+            if (type === 'success') {
+                toastInner.className = "p-4 rounded-xl text-xs font-medium flex items-center justify-between border shadow-2xl bg-emerald-950 border-emerald-700 text-emerald-200";
+                toastIcon.className = "fa-solid fa-circle-check text-emerald-400 text-base";
+            } else if (type === 'error') {
+                toastInner.className = "p-4 rounded-xl text-xs font-medium flex items-center justify-between border shadow-2xl bg-red-950 border-red-700 text-red-200";
+                toastIcon.className = "fa-solid fa-circle-xmark text-red-400 text-base";
+            } else {
+                toastInner.className = "p-4 rounded-xl text-xs font-medium flex items-center justify-between border shadow-2xl bg-slate-800 border-slate-700 text-slate-200";
+                toastIcon.className = "fa-solid fa-circle-info text-yellow-400 text-base";
+            }
+
+            toast.classList.remove('hidden');
+            setTimeout(() => { dismissToast(); }, 4000);
+        }
+
+        function dismissToast() {
+            const toast = document.getElementById('globalToast');
+            if (toast) toast.classList.add('hidden');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkSessionAndRender();
+            const today = new Date().toISOString().split('T')[0];
+            const dateInput = document.getElementById('jnlDate');
+            if (dateInput) dateInput.value = today;
+
+            // Timer interval 1 detik untuk jam WITA & status sesi
+            setInterval(updateTradingSessions, 1000);
+        });
+    </script>
+</body>
+</html>
